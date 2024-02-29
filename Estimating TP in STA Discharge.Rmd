@@ -1,0 +1,90 @@
+---
+title: "Estimating TP in the STAs"
+author: "Matt Powers"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+
+```
+
+## Purpose
+
+The purpose of this exploratory data analysis is evaluate in-situ parameters that could be used to estimate total phosphorus (TP) at STA discharge and inflow sites. 
+
+## Method
+
+Turbidity, total suspended solids, and ortho-phosphorus were evaluated as possible parameters because they can me measured or approximated in the field with sensors. Data from these parameters were downloaded from 2010 through 2023 from one inflow station and one discharge station for each STA. Three different linear models were fitted for each station, 1.) $TP=OP$, 2.) $TP=TSS$, $TP=OP+TSS$. 
+
+## Phosphorus Forms by STA and Position   
+
+Since we are measuring Ortho-P (OP) directly and trying to estimate particulate P (PP) with total suspended solids (TSS) it is worth looking at these P fractions by site, and trying to generalize some trends by location and season. Inflow sites have much higher TP than discharge sites. Additionally for 4 of the 5 inflow sites OP is the greatest fraction followed by PP with very little dissolved organic P (DOP) at any of the sites. Discharge sites have a much different profile very little OP and TP consisting of roughly equal amounts of PP and DOP. Seasonal trends changes are different by location too. Total P at discharge sites is slightly lower in wet season than dry season whereas inflow sites have a distinct high during the wet season. S319 does not exhibit this trend and has higher PP than SRP so it doesn't follow the general trends of the other inflow sites.  
+
+
+```{r figure_1, echo=FALSE, fig.cap="Seasonal Trends in P Forms"}
+knitr::include_graphics("./Figures/Seasonal Trends in P Species.jpeg")
+```
+
+
+## Model Summaries 
+
+```{r Table 1: Model summaries, echo=FALSE}
+
+knitr::kable(read.csv( "./Data/Model_fit.csv")) %>%   kable_material(c("striped", "hover"))
+
+
+```
+
+Using R-Squared as a measure of goodness of fit will favor data sets with larger ranges, in this case those of the inflow sites. All 5 inflow site models using SRP and TSS have an R-Squared of 0.89 and above. The highest R-Squared for discharge sites of 0.83 was at G344A. Not only do the inflow sites have a greater range there is just very little OP at the discharge sites. Although difficult to see in Fig 1 OP because of the scale is small OP is typically less than 10 ug/L throughout the year at all 5 sites. Since discharge sites OP was so low I thought it unlikely that a model using OPO4 only would be useful so was surprised to see that the R squared for $TP=OPO4$ at discharge sites was between at 0.57 and 0.48 for G310, S7, and G362 indicating moderate influence. Adding TSS to the model $TP=OP+TSS$ and R-Squared was event higher for discharge sites; 0.83 at G344A, 0.79 at S362, 0.64 at G310. S7 and G436 had R-Squared values below 0.49. Still not terrible for sites where mean TP is very low. 
+
+Another way to measure the goodness of fit of these models would be by using the standard deviation of the errors which is what column 'sigma' in the model summary gives us. In table 2 I've ranked models by sigma and you can see that the order is almost opposite that of table 1. The estimated standard deviation of model errors for G436 is only 0.0038 ug/L much better than the nearly 20 ug/L at G302.  It makes sense that sites with very low TP would have small errors since even if model estimate was off 50% that might only mean a 10 ug/L error whereas a 50% error at site where TP averaged 200 ug/L would result in 100 ug/L error.  
+
+If you are interested in how sigma is calculated. https://stat.ethz.ch/R-manual/R-devel/library/stats/html/sigma.html
+
+### Models ranked by sigma
+###($TP=OP+TSS$ models only)
+```{r Table 2: Model summaries , echo=FALSE}
+
+knitr::kable(read.csv( "./Data/Only_OP_TSS_Mods.csv")) %>%   kable_material(c("striped", "hover"))  %>% column_spec(4, background = "yellow")
+
+
+```
+
+
+### Model Fit
+
+```{r figure_2, echo=FALSE}
+knitr::include_graphics("./Figures/Fitted vs Predicted.jpeg")
+```
+
+### Model Residuals
+
+```{r fugure_3, echo=FALSE}
+knitr::include_graphics("./Figures/All model residuals.jpeg")
+```
+
+## Ratio of P Forms to TP Figures 
+
+```{r fugure_4, echo=FALSE}
+knitr::include_graphics("./Figures/Mean DOP to TP Ratio.jpeg")
+```
+```{r fugure_5, echo=FALSE}
+knitr::include_graphics("./Figures/SD DOP to TP Ratio.jpeg")
+```
+```{r fugure_6, echo=FALSE}
+knitr::include_graphics("./Figures/Mean OP to TP Ratio.jpeg")
+```
+```{r fugure_7, echo=FALSE}
+knitr::include_graphics("./Figures/SD OP to TP Ratio.jpeg")
+```
+```{r fugure_8, echo=FALSE}
+knitr::include_graphics("./Figures/Mean PP to TP Ratio.jpeg")
+```
+```{r fugure_9, echo=FALSE}
+knitr::include_graphics("./Figures/SD PP to TP Ratio.jpeg")
+```
+
+
